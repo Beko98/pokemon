@@ -8,10 +8,18 @@ import pokemon3Image from "./images/charmander.jpg";
 import pokemon4Image from "./images/pikachu.jpg";
 
 function App() {
-  // const [abilities, setAbilities] = useState([]);
   const [pokemon, setPokemon] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [imagesPerPage, setImagesPerPage] = useState(16);
+  const [selectedCard, setSelectedCard] = useState(null);
+
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
+  };
+
+  const handleClosePopup = () => {
+    setSelectedCard(null);
+  };
 
   useEffect(() => {
     axios
