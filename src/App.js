@@ -14,11 +14,16 @@ function App() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [getData, setGetData] = useState([]);
+  const [pokemonDetails, setPokemonDetails] = useState(null);
+
   const modalRef = useRef();
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
-    setShowModal(true);
+    axios.get(card.url).then((response) => {
+      setPokemonDetails(response.data);
+      setShowModal(true);
+    });
   };
 
   const handleClosePopup = () => {
@@ -31,14 +36,9 @@ function App() {
       .get("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0")
       .then((response) => {
         setPokemon(response.data.results);
-      });
-  }, []);
-
-  useEffect(() => {
-    axios
-      .get("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0")
-      .then((response) => {
-        setGetData(response.data.results);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   }, []);
 
@@ -111,6 +111,36 @@ function App() {
             X
           </button>
           <h3>{selectedCard.name}</h3>
+          {pokemonDetails && (
+            <>
+              <div>
+                <span className="everySpan">Species:</span> {pokemonDetails.species.name}
+              </div>
+              <div>
+                <span className="everySpan">Weight:</span> {pokemonDetails.weight} kg
+              </div>
+              <div>
+                <span className="everySpan">Stats:</span>
+                {pokemonDetails.stats.map((stat) => (
+                  <div key={stat.stat.name}>
+                    {stat.stat.name}: {stat.base_stat}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <span className="everySpan">Types:</span>
+                {pokemonDetails.types.map((type) => (
+                  <div key={type.slot}>{type.type.name}</div>
+                ))}
+              </div>
+              <div>
+                <span className="everySpan">Moves:</span>
+                {pokemonDetails.moves.slice(0, 5).map((move) => (
+                  <div key={move.move.name}>{move.move.name}</div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
 
