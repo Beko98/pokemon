@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import "./sass/_app.scss";
 
@@ -12,13 +12,18 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [imagesPerPage, setImagesPerPage] = useState(16);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [getData, setGetData] = useState([]);
+  const modalRef = useRef();
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
+    setShowModal(true);
   };
 
   const handleClosePopup = () => {
     setSelectedCard(null);
+    setShowModal(false);
   };
 
   useEffect(() => {
@@ -26,6 +31,14 @@ function App() {
       .get("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0")
       .then((response) => {
         setPokemon(response.data.results);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0")
+      .then((response) => {
+        setGetData(response.data.results);
       });
   }, []);
 
@@ -44,13 +57,43 @@ function App() {
     pokemon4Image,
   ];
 
+  const handleEscape = (event) => {
+    if (event.keyCode === 27 && selectedCard) {
+      handleClosePopup();
+    }
+  };
+
+  const handleBackdropClick = (event) => {
+    if (modalRef.current === event.target && selectedCard) {
+      handleClosePopup();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleEscape, false);
+    return () => {
+      document.removeEventListener("keydown", handleEscape, false);
+    };
+  }, [selectedCard]);
+
+  useEffect(() => {
+    document.addEventListener("click", handleBackdropClick, false);
+    return () => {
+      document.removeEventListener("click", handleBackdropClick, false);
+    };
+  }, [selectedCard]);
+
   return (
     <>
       <div className="container">
         <h2 className="title">POKEMON CARDS:</h2>
         <div className="cardContainer">
           {currentImages.map((poke, index) => (
-            <div className="card" key={index}>
+            <div
+              className="card"
+              key={index}
+              onClick={() => handleCardClick(poke)}
+            >
               <img src={pokemonImages[index % 4]} alt="Pokemon" />
               <div>
                 <h3>{poke.name}</h3>
@@ -59,6 +102,17 @@ function App() {
           ))}
         </div>
       </div>
+
+      <div className={selectedCard ? "backdrop" : ""} ref={modalRef}></div>
+
+      {selectedCard && (
+        <div className="modal">
+          <button className="close-modal" onClick={handleClosePopup}>
+            X
+          </button>
+          <h3>{selectedCard.name}</h3>
+        </div>
+      )}
 
       <div className="pagination">
         {currentPage > 1 && (
