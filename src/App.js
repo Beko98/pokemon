@@ -6,6 +6,7 @@ import pokemon1Image from "./images/bulbasaur.png";
 import pokemon2Image from "./images/charizard.jpg";
 import pokemon3Image from "./images/charmander.jpg";
 import pokemon4Image from "./images/pikachu.jpg";
+import Search from "./components/Search"
 
 function App() {
   const [pokemon, setPokemon] = useState([]);
@@ -87,6 +88,8 @@ function App() {
     <>
       <div className="container">
         <h2 className="title">POKEMON CARDS:</h2>
+
+        <Search />
         <div className="cardContainer">
           {currentImages.map((poke, index) => (
             <div
